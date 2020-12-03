@@ -1019,9 +1019,9 @@ fn main() {
             // (min..max+1).contains(&count)
 
             // Part 2
-            let a = pass.chars().nth(min-1).unwrap();
-            let b = pass.chars().nth(max-1).unwrap();
-            (a == ch && b != ch) || (a != ch && b == ch)
+            let a = pass.chars().nth(min-1).unwrap() == ch;
+            let b = pass.chars().nth(max-1).unwrap() == ch;
+            a ^ b
         })
         .count();
 
