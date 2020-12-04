@@ -1005,49 +1005,35 @@ fn main() {
         .filter(|passport| {
             passport
                 .split_whitespace()
-                .filter(|field| {
-                    let field: Vec<&str> = field.split(':').collect();
-                    let key = field.get(0).unwrap();
-                    let value = field.get(1).unwrap();
-
-                    match (*key, value) {
-                        ("byr", val) => {
-                            let year: u32 = val.parse().unwrap();
-                            year >= 1920 && year <= 2002 && val.len() == 4
+                .map(|field| {
+                    let mut field = field.split(':');
+                    (field.next().unwrap(), field.next().unwrap())
+                })
+                .filter(|(key, value)| match (*key, *value) {
+                    ("byr", val) => ("1920"..="2002").contains(&val),
+                    ("iyr", val) => ("2010"..="2020").contains(&val),
+                    ("eyr", val) => ("2020"..="2030").contains(&val),
+                    ("hgt", val) => {
+                        if let Some(height) = val.strip_suffix("cm") {
+                            let height: u32 = height.parse().unwrap();
+                            (150..=193).contains(&height)
+                        } else if let Some(height) = val.strip_suffix("in") {
+                            let height: u32 = height.parse().unwrap();
+                            (59..=76).contains(&height)
+                        } else {
+                            false
                         }
-                        ("iyr", val) => {
-                            let year: u32 = val.parse().unwrap();
-                            year >= 2010 && year <= 2020 && val.len() == 4
-                        }
-                        ("eyr", val) => {
-                            let year: u32 = val.parse().unwrap();
-                            year >= 2020 && year <= 2030 && val.len() == 4
-                        }
-                        ("hgt", val) => {
-                            if let Some(height) = val.strip_suffix("cm") {
-                                let height: u32 = height.parse().unwrap();
-                                height >= 150 && height <= 193
-                            } else if let Some(height) = val.strip_suffix("in") {
-                                let height: u32 = height.parse().unwrap();
-                                height >= 59 && height <= 76
-                            } else {
-                                false
-                            }
-                        }
-                        ("hcl", val) => {
-                            let mut chars = val.chars();
-                            if chars.next().unwrap() != '#' {
-                                return false;
-                            }
-
-                            chars.all(|char| char.is_ascii_hexdigit())
-                        }
-                        ("ecl", val) => ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]
-                            .iter()
-                            .any(|clr| val == clr),
-                        ("pid", val) => val.len() == 9 && val.chars().all(|ch| ch.is_numeric()),
-                        _ => false,
                     }
+                    ("hcl", val) => {
+                        val.len() == 7
+                            && val.starts_with('#')
+                            && val.chars().skip(1).all(|char| char.is_ascii_hexdigit())
+                    }
+                    ("ecl", val) => {
+                        ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"].contains(&val)
+                    }
+                    ("pid", val) => val.len() == 9 && val.chars().all(|ch| ch.is_numeric()),
+                    _ => false,
                 })
                 .count()
                 == 7
