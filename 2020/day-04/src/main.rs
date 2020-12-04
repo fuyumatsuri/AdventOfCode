@@ -994,7 +994,7 @@ fn main() {
 
     let count = INPUT
         .split("\n\n")
-        .filter(|passport| keys.clone().iter().all(|key| passport.contains(*key)))
+        .filter(|passport| keys.iter().all(|key| passport.contains(*key)))
         .count();
 
     println!("{:#?}", count);
