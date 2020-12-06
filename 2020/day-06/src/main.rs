@@ -1,4 +1,5 @@
 use itertools::Itertools;
+use std::collections::HashMap;
 
 static INPUT: &str = "qpicundo
 fiqcdbkyuoz
@@ -2238,7 +2239,7 @@ rtosmuxc
 fcelpwgamhnquzbsrtdxivjk
 tdjwzsaqhxunkfcvpbrmgil";
 
-static _SAMPLE_INPUT:  &str = "abc
+static _SAMPLE_INPUT: &str = "abc
 
 a
 b
@@ -2262,15 +2263,9 @@ fn main() {
             // group.chars().filter(|ch| ch.is_alphabetic()).unique().count()
 
             // Part 2
-            let mut count = 0;
-            let members = group.lines().count();
-            for i in 'a'..='z' {
-                if group.chars().filter(|ch| *ch == i).count() == members {
-                    count += 1;
-                }
-            }
-
-            count
+            ('a'..='z')
+                .filter(|ch| group.lines().all(|line| line.contains(*ch)))
+                .count()
         })
         .sum();
 
