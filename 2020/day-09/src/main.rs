@@ -1,4 +1,3 @@
-use itertools::Itertools;
 use std::collections::HashSet;
 
 static _SAMPLE_INPUT: &str = "35
@@ -1035,18 +1034,19 @@ fn main() {
         .iter()
         .enumerate()
         .skip(preamble_len)
-        .filter(|(i, line)| {
-            let set = all[*i - preamble_len..*i].iter().collect::<HashSet<_>>();
+        .find_map(|(i, line)| {
+            let set = all[i - preamble_len..i].iter().collect::<HashSet<_>>();
 
-            all[*i - preamble_len..*i]
+            if all[i - preamble_len..i]
                 .iter()
-                .filter(|i| set.contains(&(*line - *i)))
-                .count()
-                == 0
+                .all(|i| !set.contains(&(line - *i)))
+            {
+                Some(line)
+            } else {
+                None
+            }
         })
-        .next()
-        .unwrap()
-        .1;
+        .unwrap();
 
     println!("{}", count);
 
